@@ -16,12 +16,13 @@ import AIChat from './components/AIChat';
 const activeTheme = { name: 'Royal Violet', color: '#8b5cf6', dimColor: '#4c1d95' };
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'));
+  const [token, setToken] = useState(sessionStorage.getItem('token') || localStorage.getItem('token') || '');
+  const [user, setUser] = useState(JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || 'null'));
   const [activeTab, setActiveTab] = useState(window.location.hash.replace('#', '') || 'home');
   
   // Auth Form State
   const [isLogin, setIsLogin] = useState(true);
+  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
