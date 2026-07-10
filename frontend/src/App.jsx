@@ -221,10 +221,14 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     setToken('');
     setUser(null);
     setActiveReport(null);
     setHistory([]);
+    setActiveTab('home');
+    window.location.hash = 'home';
   };
 
   const handleDeleteIdea = async (ideaId, e) => {
