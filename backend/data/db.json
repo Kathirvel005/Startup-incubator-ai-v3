@@ -1,0 +1,222 @@
+{
+  "users": [
+    {
+      "id": "user_7yho5uxux",
+      "username": "tester",
+      "gmail": "tester@gmail.com",
+      "password": "63c31eb49c485fa5757084fcfb915d37a7367937cc6b30bc469b326f8f8281d6"
+    },
+    {
+      "id": "user_62nykygmw",
+      "username": "Kathirvel",
+      "gmail": "kathir24005@gmail.com",
+      "password": "02aa6494365619907d542c95bd3db704cda411c56737ed99e0b5a2dc3b1f2494"
+    },
+    {
+      "id": "user_2mymaporj",
+      "username": "guest_71021",
+      "gmail": "guest_71021@example.com",
+      "password": "3118c3f121b47857c2ecc177d07020d5e112363cea1d91c18e9a0132528c6ea9"
+    },
+    {
+      "id": "user_2r8vld8dt",
+      "username": "guest_47713",
+      "gmail": "guest_47713@example.com",
+      "password": "3118c3f121b47857c2ecc177d07020d5e112363cea1d91c18e9a0132528c6ea9"
+    },
+    {
+      "id": "user_rdhzop4wc",
+      "username": "guest_2997",
+      "gmail": "guest_2997@example.com",
+      "password": "3118c3f121b47857c2ecc177d07020d5e112363cea1d91c18e9a0132528c6ea9"
+    },
+    {
+      "id": "user_at59lf9jq",
+      "username": "kathirvel",
+      "gmail": "kathirvelmodel2023@gmail.com",
+      "password": "02aa6494365619907d542c95bd3db704cda411c56737ed99e0b5a2dc3b1f2494"
+    }
+  ],
+  "ideas": [
+    {
+      "id": "idea_ofex83f1k",
+      "userId": "user_7yho5uxux",
+      "title": "Eco AI Green Bin",
+      "explanation": "An automated solar-powered smart bin that dynamically sorts plastic astic and glass.",
+      "amount": 45000,
+      "platform": "IoT / Hardware",
+      "successRate": 53,
+      "riskRate": 71,
+      "innovationScore": 98,
+      "requiredAmount": 82500,
+      "remainingAmount": 37500,
+      "isBudgetSufficient": false,
+      "recommendations": [
+        "Establish manufacturing partnerships and verify part sourcing limits early.",
+        "File provisional patents to safeguard your hardware schematic blueprints.",
+        "Conduct comprehensive regulatory checks (FCC, CE, or FDA clinical stages).",
+        "Bootstrap a minimal functional prototype (MVP) to attract early Angel funding.",
+        "Consider application credits from AWS/GCP and open-source backend tools to cut costs."
+      ],
+      "projectedSuccessRate": 69,
+      "steps": [
+        {
+          "phase": "Phase 1: Concept & Validation",
+          "duration": "Weeks 1-4",
+          "tasks": [
+            "Conduct competitor analysis on existing solutions in the IoT / Hardware space.",
+            "Create high-fidelity UI design layouts using tools like Figma.",
+            "Talk to at least 15 potential target users to validate their core pain point."
+          ]
+        },
+        {
+          "phase": "Phase 2: MVP Development",
+          "duration": "Weeks 5-12",
+          "tasks": [
+            "Develop the core functional feature of the startup.",
+            "Integrate core analytics, databases, and secure user login.",
+            "Deploy to a temporary staging server for alpha testing."
+          ]
+        },
+        {
+          "phase": "Phase 3: Private Beta Launch",
+          "duration": "Weeks 13-16",
+          "tasks": [
+            "Invite initial target group users to test the application.",
+            "Set up an automated feedback form for logging bugs and UX struggles.",
+            "Iterate weekly based on metrics and user suggestions."
+          ]
+        },
+        {
+          "phase": "Phase 4: Launch & Scaling",
+          "duration": "Weeks 17-24",
+          "tasks": [
+            "Launch publicly on channels like ProductHunt, HackerNews, and social platforms.",
+            "Initiate paid marketing ad campaigns and sales outreach.",
+            "Start optimizing server loads and database queries to support active growth."
+          ]
+        }
+      ],
+      "similarStartup": {
+        "name": "Fitbit",
+        "successRate": 85,
+        "industry": "Wearable Tech"
+      },
+      "timestamp": "2026-06-22T08:14:17.741Z"
+    },
+    {
+      "id": "idea_9p062ew23",
+      "userId": "user_62nykygmw",
+      "title": "SmartFinance",
+      "explanation": "A personal finance management application that tracks expenses, predicts spending patterns, and provides AI-based savings recommendations.",
+      "amount": 600000,
+      "platform": "SaaS",
+      "successRate": 85,
+      "riskRate": 25,
+      "innovationScore": 98,
+      "requiredAmount": 31250,
+      "remainingAmount": 0,
+      "isBudgetSufficient": true,
+      "recommendations": [
+        "Build a robust content marketing and SEO engine to acquire organic users.",
+        "Incorporate automated billing and a frictionless onboarding trial setup.",
+        "Implement a multi-tenant cloud database pattern with rigid authorization layers.",
+        "Allocate at least 30% of the budget directly for launch marketing and user acquisition."
+      ],
+      "projectedSuccessRate": 97,
+      "steps": [
+        {
+          "phase": "Phase 1: Concept & Validation",
+          "duration": "Weeks 1-4",
+          "tasks": [
+            "Conduct competitor analysis on existing solutions in the SaaS space.",
+            "Create high-fidelity UI design layouts using tools like Figma.",
+            "Talk to at least 15 potential target users to validate their core pain point."
+          ]
+        },
+        {
+          "phase": "Phase 2: MVP Development",
+          "duration": "Weeks 5-12",
+          "tasks": [
+            "Develop the core functional feature of the startup.",
+            "Integrate core analytics, databases, and secure user login.",
+            "Deploy to a temporary staging server for alpha testing."
+          ]
+        },
+        {
+          "phase": "Phase 3: Private Beta Launch",
+          "duration": "Weeks 13-16",
+          "tasks": [
+            "Invite initial target group users to test the application.",
+            "Set up an automated feedback form for logging bugs and UX struggles.",
+            "Iterate weekly based on metrics and user suggestions."
+          ]
+        },
+        {
+          "phase": "Phase 4: Launch & Scaling",
+          "duration": "Weeks 17-24",
+          "tasks": [
+            "Launch publicly on channels like ProductHunt, HackerNews, and social platforms.",
+            "Initiate paid marketing ad campaigns and sales outreach.",
+            "Start optimizing server loads and database queries to support active growth."
+          ]
+        }
+      ],
+      "similarStartup": {
+        "name": "Slack",
+        "successRate": 92,
+        "industry": "Collaboration SaaS"
+      },
+      "swot": {
+        "strengths": [
+          "Recurring subscription revenue model",
+          "Low distribution overheads",
+          "High scaling potential"
+        ],
+        "weaknesses": [
+          "High early user churn risk",
+          "Customer acquisition cost (CAC) sensitivity"
+        ],
+        "opportunities": [
+          "Enterprise custom contract expansion",
+          "Cross-selling integration engines"
+        ],
+        "threats": [
+          "Saturated competitive landscape",
+          "Low switching barriers for customers"
+        ]
+      },
+      "marketSize": {
+        "tam": "$380 Billion",
+        "sam": "$24 Billion",
+        "som": "$1.2 Billion",
+        "tamVal": 380,
+        "samVal": 24,
+        "somVal": 1.2
+      },
+      "budgetBreakdown": [
+        {
+          "category": "Development & Engineering",
+          "percentage": 40,
+          "allocated": 240000
+        },
+        {
+          "category": "Launch Marketing & Acquisition",
+          "percentage": 30,
+          "allocated": 180000
+        },
+        {
+          "category": "Cloud Infrastructure & Ops",
+          "percentage": 15,
+          "allocated": 90000
+        },
+        {
+          "category": "Legal, Regulatory & IP Admin",
+          "percentage": 15,
+          "allocated": 90000
+        }
+      ],
+      "timestamp": "2026-07-10T06:40:02.762Z"
+    }
+  ]
+}
