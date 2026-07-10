@@ -6,7 +6,8 @@ const crypto = require('crypto');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const dbPath = path.join(__dirname, 'data', 'db.json');
 
@@ -46,7 +47,7 @@ app.post('/api/register', (req, res) => {
   writeDB(db);
 
   const token = Buffer.from(`${newUser.id}:${Date.now()}`).toString('base64');
-  res.json({ token, user: { id: newUser.id, username: newUser.username } });
+  res.json({ token, user: { id: newUser.id, username: newUser.username, gmail: newUser.gmail, profileIcon: newUser.profileIcon || '' } });
 });
 
 // Login
@@ -61,7 +62,7 @@ app.post('/api/login', (req, res) => {
   }
 
   const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
-  res.json({ token, user: { id: user.id, username: user.username } });
+  res.json({ token, user: { id: user.id, username: user.username, gmail: user.gmail, profileIcon: user.profileIcon || '' } });
 });
 
 // Middleware for Auth
@@ -79,6 +80,27 @@ const authenticate = (req, res, next) => {
     res.status(401).json({ error: 'Invalid token' });
   }
 };
+
+// Update Profile
+app.put('/api/profile', authenticate, (req, res) => {
+  const { username, gmail, profileIcon } = req.body;
+  const db = readDB();
+  
+  const userIndex = db.users.findIndex(u => u.id === req.userId);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  // Update fields
+  if (username) db.users[userIndex].username = username;
+  if (gmail) db.users[userIndex].gmail = gmail;
+  if (profileIcon !== undefined) db.users[userIndex].profileIcon = profileIcon;
+
+  writeDB(db);
+
+  const updatedUser = db.users[userIndex];
+  res.json({ user: { id: updatedUser.id, username: updatedUser.username, gmail: updatedUser.gmail, profileIcon: updatedUser.profileIcon || '' } });
+});
 
 // Get History
 app.get('/api/ideas/history', authenticate, (req, res) => {

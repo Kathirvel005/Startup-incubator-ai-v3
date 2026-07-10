@@ -537,7 +537,7 @@ function App() {
             </div>
             {token && user && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => { setActiveTab('profile'); window.location.hash = 'profile'; }} title="Edit Profile">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{
                     width: '32px',
                     height: '32px',
@@ -551,7 +551,7 @@ function App() {
                     fontWeight: 'bold',
                     fontSize: '0.9rem'
                   }}>
-                    {user.profileIcon && user.profileIcon.length > 0 ? ((user.profileIcon.startsWith('http') || user.profileIcon.startsWith('data:image')) ? <img src={user.profileIcon} style={{width:'100%', height:'100%', borderRadius:'50%', objectFit:'cover'}} /> : user.profileIcon) : user.username.charAt(0).toUpperCase()}
+                    {user.username.charAt(0).toUpperCase()}
                   </div>
                   <span style={{ fontSize: '0.9rem', color: '#f1f5f9', fontWeight: '500' }}>
                     {user.username}
@@ -580,12 +580,9 @@ function App() {
               <h1 style={{ fontFamily: 'Outfit', fontSize: '4.5rem', fontWeight: '800', marginBottom: '1.5rem', lineHeight: '1.1', textShadow: '0 0 40px rgba(139, 92, 246, 0.4)' }}>
                 Welcome to <br /> <span className="text-gradient-primary">LaunchMind AI</span>
               </h1>
-              <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontWeight: '400' }}>
+              <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: '3rem', lineHeight: '1.6', fontWeight: '400' }}>
                 Your ultimate AI-powered incubator. Validate, build, and scale your next big idea with accredited feasibility modeling and real-time market insights.
               </p>
-              <div style={{ marginBottom: '3rem', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(139,92,246,0.3)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                <img src="/startup_hero.png" alt="Startup Innovation" style={{ width: '100%', height: '300px', objectFit: 'cover', display: 'block' }} />
-              </div>
               <button 
                 className="btn-primary" 
                 style={{ padding: '1.2rem 3rem', fontSize: '1.1rem', borderRadius: '50px' }}
@@ -608,10 +605,7 @@ function App() {
         {/* Features Tab */}
         {activeTab === 'features' && (
           <div className="fade-in" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4rem 2rem' }}>
-            <h2 style={{ fontFamily: 'Outfit', fontSize: '3rem', fontWeight: '700', marginBottom: '1.5rem' }}>Platform Features</h2>
-            <div style={{ marginBottom: '3rem', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(139,92,246,0.3)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', maxWidth: '1000px', width: '100%' }}>
-              <img src="/ai_analytics.png" alt="AI Analytics" style={{ width: '100%', height: '200px', objectFit: 'cover', display: 'block' }} />
-            </div>
+            <h2 style={{ fontFamily: 'Outfit', fontSize: '3rem', fontWeight: '700', marginBottom: '3rem' }}>Platform Features</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', maxWidth: '1000px', width: '100%' }}>
               <div className="glass-card glass-card-hover">
                 <BarChart3 size={32} color="var(--accent)" style={{ marginBottom: '1rem' }} />
@@ -635,94 +629,12 @@ function App() {
         {/* About Tab */}
         {activeTab === 'about' && (
           <div className="fade-in" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
-            <div className="glass-card glass-card-hover" style={{ maxWidth: '700px', padding: '3rem', width: '100%' }}>
-              <div style={{ marginBottom: '2rem', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(139,92,246,0.3)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', width: '100%' }}>
-                <img src="/innovation_lightbulb.png" alt="Innovation" style={{ width: '100%', height: '250px', objectFit: 'cover', display: 'block' }} />
-              </div>
+            <div className="glass-card glass-card-hover" style={{ maxWidth: '700px', padding: '3rem' }}>
               <Shield size={48} color="var(--accent)" style={{ marginBottom: '1.5rem' }} />
               <h2 style={{ fontFamily: 'Outfit', fontSize: '2.5rem', fontWeight: '700', marginBottom: '1.5rem' }}>About LaunchMind AI</h2>
               <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
                 LaunchMind AI is built for visionaries. We believe that every great idea deserves a chance to be evaluated properly without the bias of traditional incubators. Our AI models are trained on thousands of successful startup trajectories to provide you with the most accurate feasibility models in the industry.
               </p>
-            </div>
-          </div>
-        )}
-
-        
-        {/* Profile Tab */}
-        {activeTab === 'profile' && (
-          <div className="fade-in" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-            <div className="glass-card" style={{ maxWidth: '500px', width: '100%', padding: '2.5rem' }}>
-              <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                <h2 style={{ fontFamily: 'Outfit', fontSize: '2rem', fontWeight: '700', marginBottom: '0.5rem' }}>Profile Settings</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>Update your account details</p>
-              </div>
-
-              <form onSubmit={async (e) => {
-                e.preventDefault();
-                try {
-                  const res = await fetch('/api/profile', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ 
-                      username: e.target.username.value,
-                      gmail: e.target.gmail.value,
-                      profileIcon: e.target.profileIcon.dataset.base64 || user?.profileIcon 
-                    })
-                  });
-                  const data = await res.json();
-                  if (res.ok) {
-                    setUser(data.user);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    alert('Profile updated successfully!');
-                  } else {
-                    alert(data.error || 'Failed to update profile');
-                  }
-                } catch (err) {
-                  alert('Error updating profile');
-                }
-              }} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div>
-                  <label className="glass-label">Profile Image (Upload)</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {user?.profileIcon && (user?.profileIcon.startsWith('http') || user?.profileIcon.startsWith('data:image')) ? (
-                      <img src={user.profileIcon} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} alt="Current Profile" />
-                    ) : (
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(var(--accent-rgb), 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', fontWeight: 'bold' }}>
-                        {user?.username?.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <input 
-                      name="profileIcon" 
-                      type="file" 
-                      accept="image/*" 
-                      className="glass-input" 
-                      style={{ padding: '0.5rem' }}
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            e.target.dataset.base64 = reader.result;
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }} 
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="glass-label">Username</label>
-                  <input name="username" type="text" className="glass-input" defaultValue={user?.username || ''} required />
-                </div>
-                <div>
-                  <label className="glass-label">Email</label>
-                  <input name="gmail" type="email" className="glass-input" defaultValue={user?.gmail || ''} required />
-                </div>
-                <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }}>
-                  Save Changes
-                </button>
-              </form>
             </div>
           </div>
         )}
@@ -1441,7 +1353,8 @@ function App() {
         )}
       </div>
 
-      {/* Floating Chat Bubble widget removed */}
+      {/* Floating Chat Bubble widget */}
+      {token && <AIChat contextIdea={activeReport ? activeReport.title : ""} />}
     </>
   );
 }
