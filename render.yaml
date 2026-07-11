@@ -2,6 +2,7 @@ services:
   - type: web
     name: startup-incubator-ai
     env: node
+    plan: free
     buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install
     startCommand: cd backend && node server.js
     envVars:
