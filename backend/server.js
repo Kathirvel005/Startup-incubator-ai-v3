@@ -3,6 +3,9 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const cron = require('node-cron');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
@@ -43,19 +46,31 @@ app.post('/api/register', (req, res) => {
     id: `user_${Math.random().toString(36).substr(2, 9)}`,
     username,
     gmail,
-    password: hashPassword(password)
+    password: hashPassword(password),
+    loginCount: 1,
+    lastLogin: new Date().toISOString()
   };
   
   db.users.push(newUser);
   writeDB(db);
 
   const token = Buffer.from(`${newUser.id}:${Date.now()}`).toString('base64');
-  res.json({ token, user: { id: newUser.id, username: newUser.username, gmail: newUser.gmail, profileIcon: newUser.profileIcon || '' } });
+  res.json({ token, user: { id: newUser.id, username: newUser.username, gmail: newUser.gmail, profileIcon: newUser.profileIcon || '', isAdmin: false } });
 });
 
 // Login
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
+  
+  // Admin Login Bypass
+  if (username === 'kathirvel_admin' && password === 'Kath@2007') {
+    const adminToken = Buffer.from(`admin:${Date.now()}`).toString('base64');
+    return res.json({ 
+      token: adminToken, 
+      user: { id: 'admin', username: 'Kathirvel Admin', gmail: 'kathir24005@gmail.com', profileIcon: '', isAdmin: true } 
+    });
+  }
+
   const db = readDB();
   
   const user = db.users.find(u => u.username === username && u.password === hashPassword(password));
@@ -64,8 +79,13 @@ app.post('/api/login', (req, res) => {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
+  // Update login tracking
+  user.loginCount = (user.loginCount || 0) + 1;
+  user.lastLogin = new Date().toISOString();
+  writeDB(db);
+
   const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
-  res.json({ token, user: { id: user.id, username: user.username, gmail: user.gmail, profileIcon: user.profileIcon || '' } });
+  res.json({ token, user: { id: user.id, username: user.username, gmail: user.gmail, profileIcon: user.profileIcon || '', isAdmin: false } });
 });
 
 // Middleware for Auth
@@ -171,6 +191,195 @@ app.delete('/api/ideas/:id', authenticate, (req, res) => {
   writeDB(db);
   
   res.json({ success: true });
+});
+
+// Admin Dashboard Stats
+app.get('/api/admin/dashboard', authenticate, (req, res) => {
+  if (req.userId !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden. Admin access required.' });
+  }
+
+  const db = readDB();
+  
+  let totalLogins = 0;
+  const enrichedUsers = db.users.map(user => {
+    totalLogins += (user.loginCount || 0);
+    const userIdeas = db.ideas.filter(idea => idea.userId === user.id);
+    return {
+      id: user.id,
+      username: user.username,
+      gmail: user.gmail,
+      loginCount: user.loginCount || 0,
+      lastLogin: user.lastLogin || null,
+      totalTimeSeconds: user.totalTimeSeconds || 0,
+      ideasCount: userIdeas.length,
+      ideas: userIdeas.map(i => ({
+        id: i.id,
+        title: i.title,
+        platform: i.platform,
+        amount: i.amount,
+        timestamp: i.timestamp,
+        successRate: i.successRate
+      }))
+    };
+  });
+
+  res.json({
+    totalVisits: db.stats?.totalVisits || 0,
+    totalTimeSeconds: db.stats?.totalTimeSeconds || 0,
+    totalUsers: db.users.length,
+    totalLogins,
+    users: enrichedUsers
+  });
+});
+
+// Record a site visit
+app.post('/api/visit', (req, res) => {
+  const db = readDB();
+  if (!db.stats) db.stats = { totalVisits: 0, totalTimeSeconds: 0 };
+  db.stats.totalVisits += 1;
+  writeDB(db);
+  res.json({ success: true, totalVisits: db.stats.totalVisits });
+});
+
+// Track time spent
+app.post('/api/track-time', (req, res) => {
+  const { seconds } = req.body;
+  if (!seconds || typeof seconds !== 'number') return res.status(400).json({ error: 'Invalid time payload' });
+  
+  const db = readDB();
+  if (!db.stats) db.stats = { totalVisits: 0, totalTimeSeconds: 0 };
+  
+  // Track global time
+  db.stats.totalTimeSeconds = (db.stats.totalTimeSeconds || 0) + seconds;
+
+  // Track per-user time if logged in
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = Buffer.from(token, 'base64').toString('ascii');
+      const [userId] = decoded.split(':');
+      if (userId !== 'admin') {
+        const user = db.users.find(u => u.id === userId);
+        if (user) {
+          user.totalTimeSeconds = (user.totalTimeSeconds || 0) + seconds;
+        }
+      }
+    } catch (e) {
+      // ignore invalid tokens for time tracking
+    }
+  }
+
+  writeDB(db);
+  res.json({ success: true });
+});
+
+// Setup Email Transporter logic
+let transporter = null;
+let testAccount = null;
+
+// Initialize Ethereal Test Account
+nodemailer.createTestAccount().then(account => {
+  testAccount = account;
+  transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    secure: false,
+    auth: {
+      user: account.user,
+      pass: account.pass
+    }
+  });
+  console.log("Ethereal test email account created.");
+}).catch(console.error);
+
+// Function to generate and send the weekly report
+const sendWeeklyReport = async () => {
+  try {
+    if (!transporter) {
+      console.log("Transporter not ready yet.");
+      return { success: false, error: "Email service initializing" };
+    }
+    const db = readDB();
+    
+    let totalLogins = 0;
+    db.users.forEach(u => totalLogins += (u.loginCount || 0));
+    
+    // Count new ideas this week
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const recentIdeas = db.ideas.filter(idea => new Date(idea.timestamp) >= oneWeekAgo);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: 'kathir24005@gmail.com', // Admin Email
+      subject: 'Startup Incubator AI - Weekly Admin Report',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;">
+          <h2 style="color: #8b5cf6;">Startup Incubator AI Weekly Report</h2>
+          <p>Here is the automated summary of your platform's activity:</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Total Users</strong></td>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${db.users.length}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Total Website Visits</strong></td>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${db.stats?.totalVisits || 0}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Total Time Spent (Minutes)</strong></td>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${Math.floor((db.stats?.totalTimeSeconds || 0) / 60)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>Total Logins</strong></td>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${totalLogins}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;"><strong>New Ideas Generated (Past 7 Days)</strong></td>
+              <td style="padding: 10px; border-bottom: 1px solid #eaeaea;">${recentIdeas.length}</td>
+            </tr>
+          </table>
+
+          <p style="margin-top: 30px; font-size: 0.9em; color: #666;">
+            This is an automated message. You can log into your Admin Dashboard for a detailed breakdown.
+          </p>
+        </div>
+      `
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    console.log("Weekly report test email sent successfully. Preview URL: %s", previewUrl);
+    return { success: true, previewUrl };
+
+  } catch (error) {
+    console.error("Error sending weekly report:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Schedule Cron Job (Runs every Sunday at 08:00 AM)
+cron.schedule('0 8 * * 0', () => {
+  console.log('Running automated weekly report cron job...');
+  sendWeeklyReport();
+});
+
+// Manual trigger for sending report
+app.post('/api/admin/send-report', authenticate, async (req, res) => {
+  if (req.userId !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden. Admin access required.' });
+  }
+
+  const result = await sendWeeklyReport();
+  if (result.success) {
+    res.json({ success: true, message: 'Test Report sent successfully!', previewUrl: result.previewUrl });
+  } else {
+    res.status(500).json({ error: 'Failed to send report. ' + result.error });
+  }
 });
 
 // Catch-all route to serve React App for non-API requests

@@ -12,6 +12,7 @@ import { jsPDF } from 'jspdf';
 import ParticleBackground from './components/ParticleBackground';
 import Gauge from './components/Gauge';
 import AIChat from './components/AIChat';
+import AdminDashboard from './components/AdminDashboard';
 
 const activeTheme = { name: 'Royal Violet', color: '#8b5cf6', dimColor: '#4c1d95' };
 
@@ -57,6 +58,32 @@ function App() {
     if (platform) progress += 25;
     setFormProgress(progress);
   }, [title, explanation, amount, platform]);
+
+  // Track page visit on mount
+  useEffect(() => {
+    if (!sessionStorage.getItem('hasVisited')) {
+      fetch('/api/visit', { method: 'POST' })
+        .then(() => sessionStorage.setItem('hasVisited', 'true'))
+        .catch(err => console.error("Error tracking visit:", err));
+    }
+  }, []);
+
+  // Time Tracking Heartbeat
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      fetch('/api/track-time', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ seconds: 60 })
+      }).catch(err => console.error("Error tracking time:", err));
+    }, 60000); // 60 seconds
+
+    return () => clearInterval(interval);
+  }, [token]);
 
   // Fetch History on load or when token changes
   useEffect(() => {
@@ -123,8 +150,9 @@ function App() {
       setUser(data.user);
       
       // Navigate to dashboard
-      setActiveTab('live-demo');
-      window.location.hash = 'live-demo';
+      const targetTab = data.user.isAdmin ? 'admin-dashboard' : 'live-demo';
+      setActiveTab(targetTab);
+      window.location.hash = targetTab;
       
       // Clear forms
       setUsernameInput('');
@@ -152,8 +180,9 @@ function App() {
         localStorage.setItem('user', JSON.stringify(data.user));
         setToken(data.token);
         setUser(data.user);
-        setActiveTab('live-demo');
-        window.location.hash = 'live-demo';
+        const targetTab = data.user.isAdmin ? 'admin-dashboard' : 'live-demo';
+        setActiveTab(targetTab);
+        window.location.hash = targetTab;
       } else {
         setAuthError(data.error || 'Guest login failed');
       }
@@ -529,6 +558,16 @@ function App() {
                 </a>
               );
             })}
+            {user?.isAdmin && (
+              <a 
+                href="#admin-dashboard"
+                onClick={(e) => { e.preventDefault(); setActiveTab('admin-dashboard'); window.location.hash = 'admin-dashboard'; }}
+                className={`nav-link ${activeTab === 'admin-dashboard' ? 'active' : ''}`}
+                style={{ color: activeTab === 'admin-dashboard' ? 'var(--accent)' : 'var(--text-secondary)', fontWeight: 'bold' }}
+              >
+                Admin Dashboard
+              </a>
+            )}
           </nav>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -1443,6 +1482,11 @@ function App() {
             </div>
 
           </div>
+        )}
+
+        {/* Admin Dashboard Tab */}
+        {activeTab === 'admin-dashboard' && user?.isAdmin && (
+          <AdminDashboard token={token} />
         )}
       </div>
 
