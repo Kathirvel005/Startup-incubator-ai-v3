@@ -1,7 +1,7 @@
 # 🚀 Startup Incubator AI (v3)
 **Accredited AI Feasibility Modeling & Startup Validation Platform**
 
-🌐 **Live Demo:** https://ideava.onrender.com/
+🌐 **Live Demo:**[ https://ideava.onrender.com/](https://ideava.onrender.com)
 
 Welcome to **Startup Incubator AI**, a cutting-edge platform designed to help visionaries validate, build, and scale their next big idea. This project serves as a comprehensive tool to evaluate startup concepts using data-driven insights and AI-powered feasibility models.
 
